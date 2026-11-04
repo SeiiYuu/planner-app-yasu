@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Desk // Class & Productivity Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        },
+                        sage: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        amberCustom: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dark body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .light body {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .glass-card {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .light .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-rose-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 border-b backdrop-blur-md dark:bg-slate-900/80 dark:border-slate-800 bg-white/80 border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-brand-600 to-rose-400 flex items-center justify-center text-white font-bold shadow-md shadow-rose-500/20">
+                    <i data-lucide="apple" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none dark:text-slate-100 text-slate-900">
+                        Teacher Desk
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Classroom & Submissions Organizer</p>
+                </div>
+            </div>
+
+            <!-- Controls: Dark/Light Mode & Add Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="toggleTheme()" class="p-2 rounded-xl border dark:border-slate-700 dark:bg-slate-800 border-slate-200 bg-slate-100 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all">
+                    <i data-lucide="sun" id="theme-icon-sun" class="w-4 h-4 hidden"></i>
+                    <i data-lucide="moon" id="theme-icon-moon" class="w-4 h-4"></i>
+                </button>
+
+                <button onclick="openClassModal()" class="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-rose-500/20 transition-all">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Add Class</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Stat Overview Banner -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass-card rounded-2xl p-4 flex items-center justify-between border-l-4 border-l-brand-600">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Class Sections</p>
+                    <h3 id="stat-class-count" class="text-2xl font-bold dark:text-white text-slate-900 mt-0.5">0</h3>
+                </div>
+                <div class="p-3 rounded-xl bg-rose-500/10 text-brand-600 dark:text-rose-400"><i data-lucide="school" class="w-6 h-6"></i></div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 flex items-center justify-between border-l-4 border-l-amberCustom-500">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Pending Papers</p>
+                    <h3 id="stat-pending-checking" class="text-2xl font-bold dark:text-white text-slate-900 mt-0.5">0</h3>
+                </div>
+                <div class="p-3 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400"><i data-lucide="file-text" class="w-6 h-6"></i></div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 flex items-center justify-between border-l-4 border-l-sage-600">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Grading Progress</p>
+                    <h3 id="stat-grading-percent" class="text-2xl font-bold dark:text-white text-slate-900 mt-0.5">0%</h3>
+                </div>
+                <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"><i data-lucide="award" class="w-6 h-6"></i></div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 flex items-center justify-between border-l-4 border-l-indigo-500">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Saved Links</p>
+                    <h3 id="stat-link-count" class="text-2xl font-bold dark:text-white text-slate-900 mt-0.5">0</h3>
+                </div>
+                <div class="p-3 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"><i data-lucide="link" class="w-6 h-6"></i></div>
+            </div>
+        </div>
+
+        <!-- Class Sections Hub -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="font-bold dark:text-slate-100 text-slate-900 text-base flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="w-5 h-5 text-brand-600 dark:text-rose-400"></i>
+                    Classes & Schedules Handled
+                </h2>
+                <span class="text-xs text-slate-500 font-mono">Organized by Section, Room & Subject</span>
+            </div>
+
+            <div id="class-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Class Cards Render Here -->
+            </div>
+        </div>
+
+        <!-- Main Checklist & Resource Hub Split -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Checking & Activity Task List (7 Cols) -->
+            <div class="lg:col-span-7 glass-card rounded-2xl p-5 space-y-4">
+                <div class="flex items-center justify-between border-b dark:border-slate-800 border-slate-200 pb-3">
+                    <div>
+                        <h3 class="font-bold dark:text-slate-100 text-slate-900 text-sm flex items-center gap-2">
+                            <i data-lucide="check-square" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+                            Activities & Submissions to Grade
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Tap + or - to count papers graded for each activity.</p>
+                    </div>
+                    <button onclick="openCheckingModal()" class="px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-brand-600 dark:text-rose-400 border border-brand-200 dark:border-rose-500/30 text-xs font-semibold flex items-center gap-1 transition-all">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Item
+                    </button>
+                </div>
+
+                <div id="checking-items-list" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    <!-- Checking Items Render Here -->
+                </div>
+            </div>
+
+            <!-- Deliverables & Links Vault (5 Cols) -->
+            <div class="lg:col-span-5 glass-card rounded-2xl p-5 space-y-4">
+                <div class="flex items-center justify-between border-b dark:border-slate-800 border-slate-200 pb-3">
+                    <div>
+                        <h3 class="font-bold dark:text-slate-100 text-slate-900 text-sm flex items-center gap-2">
+                            <i data-lucide="folder-git-2" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
+                            Classroom Links & Deliverables Hub
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Store Google Drive folders, LMS links & rubrics.</p>
+                    </div>
+                    <button onclick="openResourceModal()" class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 transition-all">
+                        + Add Link
+                    </button>
+                </div>
+
+                <div id="resources-list" class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+                    <!-- Links Render Here -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODALS -->
+
+    <!-- Add Class Modal -->
+    <div id="modal-class" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden">
+        <div class="glass-card w-full max-w-md rounded-2xl p-6 border space-y-4 dark:bg-slate-900 bg-white">
+            <div class="flex items-center justify-between pb-2 border-b dark:border-slate-800 border-slate-200">
+                <h3 class="font-bold dark:text-slate-100 text-slate-900">Add Class Section</h3>
+                <button onclick="closeClassModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="saveClassSection(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Section / Grade Name</label>
+                    <input type="text" id="cls-section" required placeholder="e.g. Grade 10 - St. Jude" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Subject</label>
+                        <input type="text" id="cls-subject" required placeholder="e.g. English Lit" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Room Number</label>
+                        <input type="text" id="cls-room" required placeholder="e.g. Room 304" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Schedule & Time</label>
+                    <input type="text" id="cls-time" required placeholder="e.g. Mon/Wed 9:00 AM - 10:30 AM" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeClassModal()" class="px-4 py-2 rounded-xl border text-xs font-medium text-slate-600 dark:text-slate-400">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-semibold shadow-md shadow-rose-500/20">Save Section</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Checking Modal -->
+    <div id="modal-checking" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden">
+        <div class="glass-card w-full max-w-md rounded-2xl p-6 border space-y-4 dark:bg-slate-900 bg-white">
+            <div class="flex items-center justify-between pb-2 border-b dark:border-slate-800 border-slate-200">
+                <h3 class="font-bold dark:text-slate-100 text-slate-900">Add Paper Checking / Activity</h3>
+                <button onclick="closeCheckingModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="saveCheckingItem(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Activity Title</label>
+                    <input type="text" id="chk-title" required placeholder="e.g. Essay Draft Checking" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Section</label>
+                        <input type="text" id="chk-section" placeholder="e.g. Grade 10-A" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Total Submissions</label>
+                        <input type="number" id="chk-total" required value="30" min="1" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeCheckingModal()" class="px-4 py-2 rounded-xl border text-xs font-medium text-slate-600 dark:text-slate-400">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-md">Add Activity</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Link Modal -->
+    <div id="modal-resource" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm hidden">
+        <div class="glass-card w-full max-w-md rounded-2xl p-6 border space-y-4 dark:bg-slate-900 bg-white">
+            <div class="flex items-center justify-between pb-2 border-b dark:border-slate-800 border-slate-200">
+                <h3 class="font-bold dark:text-slate-100 text-slate-900">Add Deliverable Link</h3>
+                <button onclick="closeResourceModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="saveResourceLink(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Resource Name</label>
+                    <input type="text" id="res-title" required placeholder="e.g. Master Gradebook Drive" class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Web Address (URL)</label>
+                    <input type="url" id="res-url" required placeholder="https://drive.google.com/..." class="w-full border dark:border-slate-700 dark:bg-slate-800 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeResourceModal()" class="px-4 py-2 rounded-xl border text-xs font-medium text-slate-600 dark:text-slate-400">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold shadow-md">Save Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- APPLICATION SCRIPTS -->
+    <script>
+        // Initial State with LocalStorage Fallback
+        const DEFAULT_STATE = {
+            classes: [
+                { id: 'c1', section: 'Grade 10 - St. Jude', subject: 'English Literature', room: 'Room 304', time: 'Mon/Wed 9:00 AM - 10:30 AM' },
+                { id: 'c2', section: 'Grade 11 - Newton', subject: 'Creative Writing', room: 'Lab 2B', time: 'Tue/Thu 1:00 PM - 2:30 PM' }
+            ],
+            checkingItems: [
+                { id: 'ck1', title: 'Midterm Essay Drafts', section: 'Grade 10 - St. Jude', checked: 18, total: 30 },
+                { id: 'ck2', title: 'Short Quiz #3', section: 'Grade 11 - Newton', checked: 25, total: 25 }
+            ],
+            resources: [
+                { id: 'r1', title: 'Gradebook Google Sheet', url: 'https://drive.google.com' },
+                { id: 'r2', title: 'Essay Rubric Document', url: 'https://docs.google.com' }
+            ]
+        };
+
+        let state = JSON.parse(localStorage.getItem('teacher_desk_data')) || DEFAULT_STATE;
+
+        function saveState() {
+            localStorage.setItem('teacher_desk_data', JSON.stringify(state));
+            render();
+        }
+
+        // Theme Toggle (Light / Dark)
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                document.getElementById('theme-icon-sun').classList.add('hidden');
+                document.getElementById('theme-icon-moon').classList.remove('hidden');
+                localStorage.setItem('teacher_theme', 'light');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                document.getElementById('theme-icon-sun').classList.remove('hidden');
+                document.getElementById('theme-icon-moon').classList.add('hidden');
+                localStorage.setItem('teacher_theme', 'dark');
+            }
+        }
+
+        // Render Application
+        function render() {
+            // Stat Cards
+            document.getElementById('stat-class-count').innerText = state.classes.length;
+            document.getElementById('stat-link-count').innerText = state.resources.length;
+
+            let pendingPapers = 0;
+            let totalPapers = 0;
+            let checkedPapers = 0;
+
+            state.checkingItems.forEach(item => {
+                totalPapers += item.total || 0;
+                checkedPapers += item.checked || 0;
+                pendingPapers += Math.max(0, (item.total || 0) - (item.checked || 0));
+            });
+
+            document.getElementById('stat-pending-checking').innerText = pendingPapers;
+            const pct = totalPapers > 0 ? Math.round((checkedPapers / totalPapers) * 100) : 100;
+            document.getElementById('stat-grading-percent').innerText = `${pct}%`;
+
+            // Class Grid Render
+            const classGrid = document.getElementById('class-grid');
+            if (state.classes.length === 0) {
+                classGrid.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-slate-400 border border-dashed rounded-xl">No class sections added yet. Click "+ Add Class" to begin!</div>`;
+            } else {
+                classGrid.innerHTML = state.classes.map(c => `
+                    <div class="glass-card p-4 rounded-2xl border-l-4 border-l-rose-500 space-y-3 relative group">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-semibold">${escapeHtml(c.subject)}</span>
+                                <h3 class="font-bold dark:text-slate-100 text-slate-900 text-sm mt-1.5">${escapeHtml(c.section)}</h3>
+                            </div>
+                            <button onclick="deleteClass('${c.id}')" class="text-slate-400 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                            <div class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i> ${escapeHtml(c.room)}</div>
+                            <div class="flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i> ${escapeHtml(c.time)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Checking Items List
+            const checkingList = document.getElementById('checking-items-list');
+            if (state.checkingItems.length === 0) {
+                checkingList.innerHTML = `<div class="py-6 text-center text-xs text-slate-400 border border-dashed rounded-xl">No active papers to grade right now!</div>`;
+            } else {
+                checkingList.innerHTML = state.checkingItems.map(item => {
+                    const isDone = item.checked >= item.total;
+                    const pct = Math.round((item.checked / item.total) * 100);
+                    return `
+                        <div class="glass-card p-3 rounded-xl space-y-2 text-xs">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-2.5">
+                                    <button onclick="toggleCheckingComplete('${item.id}')" class="w-5 h-5 rounded-md flex items-center justify-center border ${isDone ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600'} transition-all">
+                                        <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
+                                    </button>
+                                    <div>
+                                        <div class="font-semibold ${isDone ? 'line-through text-slate-400 dark:text-slate-500' : 'dark:text-slate-100 text-slate-800'}">${escapeHtml(item.title)}</div>
+                                        <div class="text-[10px] text-slate-400">${escapeHtml(item.section)}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center border dark:border-slate-700 border-slate-200 rounded-lg px-2 py-1 gap-2 font-mono text-[11px] bg-slate-50 dark:bg-slate-800">
+                                        <button onclick="updateCheckCount('${item.id}', -1)" class="text-slate-400 hover:text-slate-800 dark:hover:text-white px-1 font-bold">-</button>
+                                        <span class="${isDone ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-amber-600 dark:text-amber-400 font-bold'}">${item.checked} / ${item.total}</span>
+                                        <button onclick="updateCheckCount('${item.id}', 1)" class="text-slate-400 hover:text-slate-800 dark:hover:text-white px-1 font-bold">+</button>
+                                    </div>
+                                    <button onclick="deleteChecking('${item.id}')" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                </div>
+                            </div>
+                            <!-- Mini Progress Bar -->
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full transition-all duration-300" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Resources / Links List
+            const resList = document.getElementById('resources-list');
+            if (state.resources.length === 0) {
+                resList.innerHTML = `<div class="py-6 text-center text-xs text-slate-400 border border-dashed rounded-xl">No stored links yet.</div>`;
+            } else {
+                resList.innerHTML = state.resources.map(r => `
+                    <div class="glass-card p-2.5 rounded-xl flex items-center justify-between text-xs">
+                        <a href="${escapeHtml(r.url)}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:underline font-medium truncate max-w-[85%]">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span class="truncate">${escapeHtml(r.title)}</span>
+                        </a>
+                        <button onclick="deleteResource('${r.id}')" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                `).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        // Modal Handlers
+        function openClassModal() { document.getElementById('modal-class').classList.remove('hidden'); }
+        function closeClassModal() { document.getElementById('modal-class').classList.add('hidden'); }
+        function saveClassSection(e) {
+            e.preventDefault();
+            const section = document.getElementById('cls-section').value;
+            const subject = document.getElementById('cls-subject').value;
+            const room = document.getElementById('cls-room').value;
+            const time = document.getElementById('cls-time').value;
+
+            state.classes.unshift({ id: Date.now().toString(), section, subject, room, time });
+            closeClassModal();
+            saveState();
+        }
+        function deleteClass(id) {
+            state.classes = state.classes.filter(c => c.id !== id);
+            saveState();
+        }
+
+        function openCheckingModal() { document.getElementById('modal-checking').classList.remove('hidden'); }
+        function closeCheckingModal() { document.getElementById('modal-checking').classList.add('hidden'); }
+        function saveCheckingItem(e) {
+            e.preventDefault();
+            const title = document.getElementById('chk-title').value;
+            const section = document.getElementById('chk-section').value;
+            const total = parseInt(document.getElementById('chk-total').value) || 30;
+
+            state.checkingItems.unshift({ id: Date.now().toString(), title, section, checked: 0, total });
+            closeCheckingModal();
+            saveState();
+        }
+        function updateCheckCount(id, delta) {
+            const item = state.checkingItems.find(i => i.id === id);
+            if (item) {
+                item.checked = Math.max(0, Math.min(item.total, item.checked + delta));
+                saveState();
+            }
+        }
+        function toggleCheckingComplete(id) {
+            const item = state.checkingItems.find(i => i.id === id);
+            if (item) {
+                item.checked = item.checked >= item.total ? 0 : item.total;
+                saveState();
+            }
+        }
+        function deleteChecking(id) {
+            state.checkingItems = state.checkingItems.filter(i => i.id !== id);
+            saveState();
+        }
+
+        function openResourceModal() { document.getElementById('modal-resource').classList.remove('hidden'); }
+        function closeResourceModal() { document.getElementById('modal-resource').classList.add('hidden'); }
+        function saveResourceLink(e) {
+            e.preventDefault();
+            const title = document.getElementById('res-title').value;
+            const url = document.getElementById('res-url').value;
+
+            state.resources.unshift({ id: Date.now().toString(), title, url });
+            closeResourceModal();
+            saveState();
+        }
+        function deleteResource(id) {
+            state.resources = state.resources.filter(r => r.id !== id);
+            saveState();
+        }
+
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Init App
+        window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('teacher_theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+            }
+            render();
+        });
+    </script>
+</body>
+</html>
