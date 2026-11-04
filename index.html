@@ -39,7 +39,7 @@
         <i class="fa-regular fa-clock text-indigo-400"></i> Today's Schedule Overview
       </h2>
       <div id="schedule-bar" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <!-- Schedule cards render here dynamically -->
+        <!-- Schedule cards render here -->
       </div>
     </section>
 
@@ -53,17 +53,16 @@
       </div>
 
       <div id="sections-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Section cards render here dynamically -->
+        <!-- Section cards render here -->
       </div>
     </section>
   </main>
 
-  <!-- Firebase CDN Dependencies -->
+  <!-- Firebase & App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCD9EvQsWwB7cqMHAneg7iNJj1DgvyiBNw",
       authDomain: "planner-app-yasu.firebaseapp.com",
@@ -71,253 +70,4 @@
       storageBucket: "planner-app-yasu.firebasestorage.app",
       messagingSenderId: "87081581872",
       appId: "1:87081581872:web:369e247cc063ab4b27dcf5",
-      measurementId: "G-7SH7JJ8XL3"
-    };
-
-    // Initialize Firebase & Firestore
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const docRef = doc(db, "teacher_planner", "shared_state");
-
-    // Initial Default Data (Default template for her classes)
-    let appData = {
-      sections: [
-        {
-          id: "sec-1",
-          sectionName: "Grade 10 - St. Jude",
-          room: "Room 304",
-          subject: "Mathematics",
-          schedule: "08:00 AM - 09:30 AM",
-          links: [
-            { title: "Class Drive Folder", url: "https://drive.google.com" },
-            { title: "LMS Portal", url: "https://canvas.instructure.com" }
-          ],
-          tasks: [
-            { id: "t1", text: "Check Quarter 1 Quiz Papers (30/30)", done: false },
-            { id: "t2", text: "Record Performance Task Scores", done: false },
-            { id: "t3", text: "Upload Activity 2 Rubrics", done: true }
-          ]
-        },
-        {
-          id: "sec-2",
-          sectionName: "Grade 11 - STEM A",
-          room: "Lab 2",
-          subject: "General Mathematics",
-          schedule: "10:00 AM - 11:30 AM",
-          links: [
-            { title: "Curriculum Syllabus", url: "#" }
-          ],
-          tasks: [
-            { id: "t4", text: "Grade Problem Set #3", done: false },
-            { id: "t5", text: "Print Quiz Sets for Tomorrow", done: false }
-          ]
-        }
-      ]
-    };
-
-    // Save Data to Cloud Live
-    window.saveState = async function() {
-      updateSyncStatus('saving');
-      try {
-        await setDoc(docRef, appData, { merge: true });
-        updateSyncStatus('synced');
-      } catch (err) {
-        console.error("Cloud Save Failed:", err);
-        updateSyncStatus('error');
-      }
-    };
-
-    // Listen for Cloud Real-Time Updates Across Phone and PC
-    onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        appData = docSnap.data();
-        renderUI();
-        updateSyncStatus('synced');
-      } else {
-        // First run initialization
-        window.saveState();
-      }
-    });
-
-    function updateSyncStatus(status) {
-      const dot = document.getElementById('sync-status-dot');
-      const text = document.getElementById('sync-status-text');
-      if (status === 'synced') {
-        dot.className = "w-2 h-2 rounded-full bg-emerald-400 inline-block";
-        text.innerText = "Synced Live across Phone & PC";
-      } else if (status === 'saving') {
-        dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse inline-block";
-        text.innerText = "Saving changes...";
-      } else {
-        dot.className = "w-2 h-2 rounded-full bg-rose-500 inline-block";
-        text.innerText = "Sync error (offline)";
-      }
-    }
-
-    // --- UI Rendering Logic ---
-    window.renderUI = function() {
-      const container = document.getElementById('sections-container');
-      const scheduleBar = document.getElementById('schedule-bar');
-      container.innerHTML = '';
-      scheduleBar.innerHTML = '';
-
-      let totalTasks = 0;
-      let completedTasks = 0;
-
-      appData.sections.forEach((sec, sIdx) => {
-        // Render Schedule Overview Card
-        const schedCard = document.createElement('div');
-        schedCard.className = "bg-slate-900 border border-slate-700 p-3 rounded-lg flex flex-col justify-between";
-        schedCard.innerHTML = `
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">${sec.subject}</span>
-            <span class="text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">${sec.room}</span>
-          </div>
-          <div class="font-medium text-sm text-slate-100 my-1">${sec.sectionName}</div>
-          <div class="text-xs text-slate-400"><i class="fa-regular fa-clock me-1"></i>${sec.schedule}</div>
-        `;
-        scheduleBar.appendChild(schedCard);
-
-        // Render Section Cards
-        const card = document.createElement('div');
-        card.className = "bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg flex flex-col justify-between";
-
-        let tasksHTML = '';
-        sec.tasks.forEach((t, tIdx) => {
-          totalTasks++;
-          if(t.done) completedTasks++;
-          tasksHTML += `
-            <li class="flex items-center justify-between group bg-slate-900/60 border border-slate-700/50 p-2.5 rounded-lg">
-              <label class="flex items-center gap-3 text-sm flex-1 cursor-pointer select-none">
-                <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${sIdx}, ${tIdx})" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
-                <span class="${t.done ? 'line-through text-slate-500' : 'text-slate-200'}">${t.text}</span>
-              </label>
-              <button onclick="deleteTask(${sIdx}, ${tIdx})" class="text-slate-500 hover:text-rose-400 transition opacity-0 group-hover:opacity-100 text-xs px-1">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </li>
-          `;
-        });
-
-        let linksHTML = '';
-        sec.links.forEach((l, lIdx) => {
-          linksHTML += `
-            <a href="${l.url}" target="_blank" class="inline-flex items-center gap-1 text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-2.5 py-1 rounded-md hover:bg-indigo-900 transition">
-              <i class="fa-solid fa-link text-[10px]"></i> ${l.title}
-              <button onclick="event.preventDefault(); deleteLink(${sIdx}, ${lIdx})" class="ms-1 text-indigo-400 hover:text-rose-400"><i class="fa-solid fa-xmark"></i></button>
-            </a>
-          `;
-        });
-
-        card.innerHTML = `
-          <div>
-            <div class="flex justify-between items-start border-b border-slate-700 pb-3 mb-4">
-              <div>
-                <h3 class="font-bold text-lg text-white">${sec.sectionName}</h3>
-                <p class="text-xs text-indigo-400 font-medium">${sec.subject} • ${sec.room}</p>
-                <p class="text-xs text-slate-400 mt-0.5"><i class="fa-regular fa-clock me-1"></i>${sec.schedule}</p>
-              </div>
-              <button onclick="deleteSection(${sIdx})" class="text-slate-500 hover:text-rose-400 text-sm transition">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-
-            <!-- Deliverables / Links Hub -->
-            <div class="mb-4">
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Links & Resources</span>
-                <button onclick="addLink(${sIdx})" class="text-xs text-indigo-400 hover:underline">+ Add Link</button>
-              </div>
-              <div class="flex flex-wrap gap-2">${linksHTML || '<span class="text-xs text-slate-600 italic">No links added</span>'}</div>
-            </div>
-
-            <!-- Task & Checking Checklist -->
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Checking & Activities</span>
-                <span class="text-xs font-mono text-indigo-400">${sec.tasks.filter(t=>t.done).length}/${sec.tasks.length} Checked</span>
-              </div>
-              <ul class="space-y-2 mb-3">${tasksHTML}</ul>
-            </div>
-          </div>
-
-          <div class="pt-3 border-t border-slate-700/60 mt-2">
-            <button onclick="addTask(${sIdx})" class="w-full py-2 bg-slate-900 hover:bg-slate-700/80 text-xs font-medium text-slate-300 rounded-lg border border-slate-700 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-plus text-indigo-400"></i> Add Task / Paper to Check
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-
-      document.getElementById('global-counter').innerText = `${completedTasks}/${totalTasks} Tasks Checked Globally`;
-    };
-
-    // User Event Handlers
-    window.toggleTask = function(sIdx, tIdx) {
-      appData.sections[sIdx].tasks[tIdx].done = !appData.sections[sIdx].tasks[tIdx].done;
-      renderUI();
-      window.saveState();
-    };
-
-    window.addTask = function(sIdx) {
-      const text = prompt("Enter checking task or activity name:");
-      if (text) {
-        appData.sections[sIdx].tasks.push({ id: Date.now().toString(), text: text, done: false });
-        renderUI();
-        window.saveState();
-      }
-    };
-
-    window.deleteTask = function(sIdx, tIdx) {
-      appData.sections[sIdx].tasks.splice(tIdx, 1);
-      renderUI();
-      window.saveState();
-    };
-
-    window.addLink = function(sIdx) {
-      const title = prompt("Enter link title (e.g., LMS, Class Drive):");
-      if (!title) return;
-      const url = prompt("Paste full URL:");
-      if (!url) return;
-      appData.sections[sIdx].links.push({ title, url });
-      renderUI();
-      window.saveState();
-    };
-
-    window.deleteLink = function(sIdx, lIdx) {
-      appData.sections[sIdx].links.splice(lIdx, 1);
-      renderUI();
-      window.saveState();
-    };
-
-    window.addNewSection = function() {
-      const sectionName = prompt("Enter Section Name (e.g. Grade 10 - St. Jude):");
-      if (!sectionName) return;
-      const subject = prompt("Enter Subject Handled:") || "General";
-      const room = prompt("Enter Classroom / Room Number:") || "TBA";
-      const schedule = prompt("Enter Schedule Time (e.g., 08:00 AM - 09:30 AM):") || "TBA";
-
-      appData.sections.push({
-        id: Date.now().toString(),
-        sectionName,
-        subject,
-        room,
-        schedule,
-        links: [],
-        tasks: []
-      });
-      renderUI();
-      window.saveState();
-    };
-
-    window.deleteSection = function(sIdx) {
-      if (confirm(`Delete section "${appData.sections[sIdx].sectionName}"?`)) {
-        appData.sections.splice(sIdx, 1);
-        renderUI();
-        window.saveState();
-      }
-    };
-  </script>
-</body>
-</html>
+      measurementId: "G-7
