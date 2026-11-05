@@ -9,14 +9,10 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-pink-500 selection:text-white">
 
-  <!-- Header -->
   <header class="bg-slate-900/90 backdrop-blur-md border-b border-pink-500/20 p-4 sticky top-0 z-50 shadow-lg shadow-pink-950/20">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
+    <div class="max-w-6xl mx-auto flex justify-between items-center gap-3">
       <div class="flex items-center space-x-3">
-        <!-- Capybara App Icon -->
-        <div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-pink-500/30">
-          🦫
-        </div>
+        <div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg shadow-pink-500/30">🦫</div>
         <div>
           <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
             Teacher Planner <span class="text-xs bg-pink-500/10 text-pink-400 border border-pink-500/30 px-2 py-0.5 rounded-full font-normal">For Her 💖</span>
@@ -28,39 +24,28 @@
         </div>
       </div>
       <button onclick="addNewSection()" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-pink-600/30 flex items-center gap-2">
-        <i class="fa-solid fa-plus"></i> Add Class / Section
+        <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Add Class / Section</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Workspace -->
   <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 space-y-6">
 
-    <!-- Class Schedule Timeline -->
     <section class="bg-slate-900/70 backdrop-blur-sm rounded-2xl p-5 border border-pink-500/20 shadow-xl">
       <h2 class="text-xs font-bold uppercase tracking-wider text-pink-400 mb-3 flex items-center gap-2">
         <i class="fa-regular fa-clock text-pink-500"></i> Class Schedule & Room Agenda
       </h2>
-      <div id="schedule-bar" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <!-- Dynamic Schedule Cards -->
-      </div>
+      <div id="schedule-bar" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
     </section>
 
-    <!-- Sections / Grading Workspace -->
     <section>
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-bold text-slate-200">Classes & Checking Workspace</h2>
-        <span id="global-counter" class="text-xs bg-pink-950/60 border border-pink-800/60 text-pink-300 px-3 py-1 rounded-full font-mono shadow-sm">
-          0 Papers Checked Overall
-        </span>
+        <span id="global-counter" class="text-xs bg-pink-950/60 border border-pink-800/60 text-pink-300 px-3 py-1 rounded-full font-mono shadow-sm">0 Papers Checked Overall</span>
       </div>
-
-      <div id="sections-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Dynamic Section Cards -->
-      </div>
+      <div id="sections-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
     </section>
 
-    <!-- Kei's Notes / Love Note Box at the Bottom -->
     <section class="bg-gradient-to-br from-slate-900/90 to-pink-950/20 backdrop-blur-sm rounded-2xl p-5 border border-pink-500/30 shadow-xl space-y-3">
       <div class="flex justify-between items-center">
         <h2 class="text-xs font-bold uppercase tracking-wider text-pink-400 flex items-center gap-2">
@@ -71,9 +56,17 @@
       <textarea id="kei-notes-textarea" oninput="onNotesInput(this.value)" rows="3" class="w-full bg-slate-950/80 border border-slate-800 focus:border-pink-500/80 rounded-xl p-3.5 text-sm text-pink-100 placeholder-slate-600 focus:outline-none transition resize-none shadow-inner" placeholder="Type a sweet note here (e.g. i love you keep working hard <3)..."></textarea>
     </section>
 
+    <!-- Backup tools -->
+    <section class="bg-slate-900/70 rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center gap-2">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400 me-2"><i class="fa-solid fa-shield-heart text-pink-500"></i> Backup</span>
+      <button onclick="exportData()" class="text-xs bg-slate-950 border border-slate-700 hover:border-pink-500/60 px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-download me-1"></i> Export JSON</button>
+      <button onclick="document.getElementById('import-file').click()" class="text-xs bg-slate-950 border border-slate-700 hover:border-pink-500/60 px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-upload me-1"></i> Import JSON</button>
+      <button onclick="restoreLocalBackup()" class="text-xs bg-slate-950 border border-slate-700 hover:border-pink-500/60 px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-clock-rotate-left me-1"></i> Restore this device's last copy</button>
+      <input id="import-file" type="file" accept="application/json" class="hidden" onchange="importData(this)">
+    </section>
+
   </main>
 
-  <!-- Firebase & Application Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -92,34 +85,33 @@
     const db = getFirestore(app);
     const docRef = doc(db, "teacher_planner", "shared_state");
 
-    let appData = {
-      keiNotes: "i love you keep working hard <3",
-      sections: [
-        {
-          id: "sec-1",
-          sectionName: "Grade 10 - St. Jude",
-          room: "Room 304",
-          subject: "Mathematics",
-          schedule: "08:00 AM - 09:30 AM",
-          links: [
-            { title: "Class Drive Folder", url: "https://drive.google.com" },
-            { title: "LMS Portal", url: "https://canvas.instructure.com" }
-          ],
-          activities: [
-            { id: "a1", title: "Quarter 1 Quiz Papers", checkedCount: 18, totalStudents: 30 },
-            { id: "a2", title: "Performance Task #1", checkedCount: 30, totalStudents: 30 }
-          ],
-          generalTasks: [
-            { id: "gt1", text: "Upload Activity 2 Rubrics to LMS", done: true },
-            { id: "gt2", text: "Print Quiz Sets for Tomorrow", done: false }
-          ]
+    // Blank by default. Demo data must never exist in code, or it can overwrite real data.
+    let appData = { keiNotes: "", sections: [] };
+
+    // Nothing may be saved until real data has been received from the server.
+    let loaded = false;
+    const BACKUP_KEY = "planner_backup_v1";
+
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const safeUrl = (u) => /^https?:\/\//i.test(u) ? u : "https://" + u;
+
+    function backupLocally(data) {
+      try {
+        if ((data.sections || []).length > 0) {
+          localStorage.setItem(BACKUP_KEY, JSON.stringify({ savedAt: new Date().toISOString(), data }));
         }
-      ]
-    };
+      } catch (e) {}
+    }
 
     window.saveState = async function() {
+      if (!loaded) {
+        console.warn("Save blocked: cloud data not loaded yet.");
+        updateSyncStatus('error', "Not loaded yet - changes NOT saved");
+        return;
+      }
       updateSyncStatus('saving');
       try {
+        backupLocally(appData);
         await setDoc(docRef, appData);
         updateSyncStatus('synced');
       } catch (err) {
@@ -128,38 +120,47 @@
       }
     };
 
-    // Debounce timer for smooth typing in notes
     let saveTimeout = null;
     window.onNotesInput = function(val) {
+      if (!loaded) return;
       appData.keiNotes = val;
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => {
-        window.saveState();
-      }, 500); // saves 500ms after you stop typing
+      saveTimeout = setTimeout(() => window.saveState(), 500);
     };
 
     onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const cloudData = docSnap.data();
-        appData = cloudData;
-        if (!appData.sections) appData.sections = [];
-        
-        // Sync textarea without interrupting user focus if currently typing
-        const notesBox = document.getElementById('kei-notes-textarea');
-        if (notesBox && document.activeElement !== notesBox) {
-          notesBox.value = appData.keiNotes || "";
-        } else if (notesBox && !notesBox.value && appData.keiNotes) {
-          notesBox.value = appData.keiNotes;
+      if (!docSnap.exists()) {
+        // Offline cache can falsely say "missing". NEVER write from that.
+        if (docSnap.metadata.fromCache) {
+          updateSyncStatus('error', "Offline - waiting for server (nothing will be overwritten)");
+          return;
         }
-
-        renderUI();
-        updateSyncStatus('synced');
-      } else {
+        // Confirmed by the server: document truly doesn't exist yet. Start blank.
+        loaded = true;
+        appData = { keiNotes: "", sections: [] };
         window.saveState();
+        renderUI();
+        return;
       }
+
+      // Ignore echoes of our own pending writes so we don't clobber what's being typed
+      if (docSnap.metadata.hasPendingWrites) return;
+
+      const cloudData = docSnap.data();
+      if (!cloudData.sections) cloudData.sections = [];
+      appData = cloudData;
+      loaded = true;
+      backupLocally(appData);
+
+      const notesBox = document.getElementById('kei-notes-textarea');
+      if (notesBox && document.activeElement !== notesBox) notesBox.value = appData.keiNotes || "";
+
+      renderUI();
+      updateSyncStatus(docSnap.metadata.fromCache ? 'error' : 'synced',
+        docSnap.metadata.fromCache ? "Offline - showing saved copy" : null);
     });
 
-    function updateSyncStatus(status) {
+    function updateSyncStatus(status, msg) {
       const dot = document.getElementById('sync-status-dot');
       const text = document.getElementById('sync-status-text');
       if (status === 'synced') {
@@ -170,7 +171,7 @@
         text.innerText = "Saving changes...";
       } else {
         dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 inline-block";
-        text.innerText = "Sync error (offline)";
+        text.innerText = msg || "Sync error (offline)";
       }
     }
 
@@ -182,28 +183,23 @@
 
       let totalCheckedOverall = 0;
       let totalStudentsOverall = 0;
-
       if (!appData.sections) appData.sections = [];
 
       appData.sections.forEach((sec, sIdx) => {
-        // Schedule Top Bar Card
         const schedCard = document.createElement('div');
         schedCard.className = "bg-slate-950/60 border border-pink-500/20 p-3.5 rounded-xl flex flex-col justify-between";
         schedCard.innerHTML = `
           <div class="flex justify-between items-start">
-            <span class="text-xs font-bold text-pink-400 uppercase tracking-wider">${sec.subject || 'General'}</span>
-            <span class="text-[11px] font-mono text-slate-300 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">${sec.room || 'TBA'}</span>
+            <span class="text-xs font-bold text-pink-400 uppercase tracking-wider">${esc(sec.subject || 'General')}</span>
+            <span class="text-[11px] font-mono text-slate-300 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">${esc(sec.room || 'TBA')}</span>
           </div>
-          <div class="font-bold text-sm text-slate-100 my-1">${sec.sectionName}</div>
-          <div class="text-xs text-slate-400"><i class="fa-regular fa-clock me-1 text-slate-500"></i>${sec.schedule || 'TBA'}</div>
-        `;
+          <div class="font-bold text-sm text-slate-100 my-1">${esc(sec.sectionName)}</div>
+          <div class="text-xs text-slate-400"><i class="fa-regular fa-clock me-1 text-slate-500"></i>${esc(sec.schedule || 'TBA')}</div>`;
         scheduleBar.appendChild(schedCard);
 
-        // Main Section Card
         const card = document.createElement('div');
         card.className = "bg-slate-900/90 backdrop-blur-sm border border-pink-500/20 rounded-2xl p-5 shadow-xl flex flex-col justify-between space-y-4";
 
-        // Grading Activities HTML
         let activitiesHTML = '';
         if (!sec.activities) sec.activities = [];
         sec.activities.forEach((act, aIdx) => {
@@ -211,20 +207,15 @@
           totalStudentsOverall += Number(act.totalStudents || 0);
           const percent = act.totalStudents > 0 ? Math.round((act.checkedCount / act.totalStudents) * 100) : 0;
           const isDone = act.checkedCount >= act.totalStudents && act.totalStudents > 0;
-
           activitiesHTML += `
             <div class="bg-slate-950/80 border border-slate-800/80 p-3 rounded-xl space-y-2">
               <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                  <span class="font-medium text-sm ${isDone ? 'line-through text-slate-500' : 'text-slate-100'}">${act.title}</span>
+                  <span class="font-medium text-sm ${isDone ? 'line-through text-slate-500' : 'text-slate-100'}">${esc(act.title)}</span>
                   ${isDone ? '<span class="text-[10px] bg-pink-950/80 text-pink-300 border border-pink-800/80 px-1.5 py-0.5 rounded">Finished</span>' : ''}
                 </div>
-                <button onclick="deleteActivity(${sIdx}, ${aIdx})" class="text-slate-600 hover:text-rose-400 text-xs px-1 transition">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
+                <button onclick="deleteActivity(${sIdx}, ${aIdx})" class="text-slate-600 hover:text-rose-400 text-xs px-1 transition"><i class="fa-solid fa-trash"></i></button>
               </div>
-
-              <!-- Counter Adjuster Controls -->
               <div class="flex items-center justify-between text-xs pt-1">
                 <div class="flex items-center gap-1">
                   <button onclick="adjustCounter(${sIdx}, ${aIdx}, -5)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 px-2 py-0.5 rounded font-mono text-[11px]">-5</button>
@@ -235,16 +226,12 @@
                 </div>
                 <span class="font-mono text-slate-400">${percent}%</span>
               </div>
-
-              <!-- Progress Bar -->
               <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
                 <div class="bg-gradient-to-r from-pink-500 to-rose-500 h-full transition-all duration-300" style="width: ${percent}%"></div>
               </div>
-            </div>
-          `;
+            </div>`;
         });
 
-        // Checkbox Tasks HTML
         let generalTasksHTML = '';
         if (!sec.generalTasks) sec.generalTasks = [];
         sec.generalTasks.forEach((t, tIdx) => {
@@ -252,42 +239,32 @@
             <li class="flex items-center justify-between group bg-slate-950/40 border border-slate-800/60 px-3 py-2 rounded-xl">
               <label class="flex items-center gap-2.5 text-xs flex-1 cursor-pointer select-none">
                 <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleGeneralTask(${sIdx}, ${tIdx})" class="w-3.5 h-3.5 accent-pink-500 rounded cursor-pointer">
-                <span class="${t.done ? 'line-through text-slate-600' : 'text-slate-300'}">${t.text}</span>
+                <span class="${t.done ? 'line-through text-slate-600' : 'text-slate-300'}">${esc(t.text)}</span>
               </label>
-              <button onclick="deleteGeneralTask(${sIdx}, ${tIdx})" class="text-slate-600 hover:text-rose-400 text-xs opacity-0 group-hover:opacity-100 transition">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </li>
-          `;
+              <button onclick="deleteGeneralTask(${sIdx}, ${tIdx})" class="text-slate-600 hover:text-rose-400 text-xs md:opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button>
+            </li>`;
         });
 
-        // Resource Links HTML
         let linksHTML = '';
         if (!sec.links) sec.links = [];
         sec.links.forEach((l, lIdx) => {
           linksHTML += `
-            <a href="${l.url}" target="_blank" class="inline-flex items-center gap-1.5 text-xs bg-pink-950/40 text-pink-300 border border-pink-900/50 px-2.5 py-1 rounded-lg hover:bg-pink-900/40 transition">
-              <i class="fa-solid fa-link text-[10px]"></i> ${l.title}
-              <button onclick="event.preventDefault(); deleteLink(${sIdx}, ${lIdx})" class="ms-1 text-pink-400/70 hover:text-rose-400"><i class="fa-solid fa-xmark"></i></button>
-            </a>
-          `;
+            <span class="inline-flex items-center gap-1.5 text-xs bg-pink-950/40 text-pink-300 border border-pink-900/50 px-2.5 py-1 rounded-lg hover:bg-pink-900/40 transition">
+              <a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5"><i class="fa-solid fa-link text-[10px]"></i> ${esc(l.title)}</a>
+              <button onclick="deleteLink(${sIdx}, ${lIdx})" class="ms-1 text-pink-400/70 hover:text-rose-400"><i class="fa-solid fa-xmark"></i></button>
+            </span>`;
         });
 
         card.innerHTML = `
           <div>
-            <!-- Section Header -->
             <div class="flex justify-between items-start border-b border-slate-800 pb-3 mb-4">
               <div>
-                <h3 class="font-bold text-lg text-white">${sec.sectionName}</h3>
-                <p class="text-xs text-pink-400 font-medium">${sec.subject || 'General'} • ${sec.room || 'Room TBA'}</p>
-                <p class="text-xs text-slate-400 mt-0.5"><i class="fa-regular fa-clock me-1"></i>${sec.schedule || 'Schedule TBA'}</p>
+                <h3 class="font-bold text-lg text-white">${esc(sec.sectionName)}</h3>
+                <p class="text-xs text-pink-400 font-medium">${esc(sec.subject || 'General')} • ${esc(sec.room || 'Room TBA')}</p>
+                <p class="text-xs text-slate-400 mt-0.5"><i class="fa-regular fa-clock me-1"></i>${esc(sec.schedule || 'Schedule TBA')}</p>
               </div>
-              <button onclick="deleteSection(${sIdx})" class="text-slate-600 hover:text-rose-400 text-sm transition">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
+              <button onclick="deleteSection(${sIdx})" class="text-slate-600 hover:text-rose-400 text-sm transition"><i class="fa-solid fa-trash-can"></i></button>
             </div>
-
-            <!-- Links Repository -->
             <div class="mb-4">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Links & Drive Folders</span>
@@ -295,8 +272,6 @@
               </div>
               <div class="flex flex-wrap gap-2">${linksHTML || '<span class="text-xs text-slate-600 italic">No links added yet</span>'}</div>
             </div>
-
-            <!-- Dedicated Activity Checking Tracker -->
             <div class="mb-4">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Papers / Activities Checking</span>
@@ -304,8 +279,6 @@
               </div>
               <div class="space-y-2">${activitiesHTML || '<p class="text-xs text-slate-600 italic">No activity trackers created yet.</p>'}</div>
             </div>
-
-            <!-- General Checklist -->
             <div>
               <div class="flex justify-between items-center mb-2">
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">General Tasks Checklist</span>
@@ -313,113 +286,139 @@
               </div>
               <ul class="space-y-1.5">${generalTasksHTML || '<li class="text-xs text-slate-600 italic">No checklist items.</li>'}</ul>
             </div>
-          </div>
-        `;
+          </div>`;
         container.appendChild(card);
       });
 
       document.getElementById('global-counter').innerText = `${totalCheckedOverall} / ${totalStudentsOverall} Total Papers Checked`;
     };
 
-    // --- Action Handlers ---
+    // Every edit goes through here: blocked until cloud data has loaded.
+    function guard() {
+      if (!loaded) { alert("Still connecting to the cloud. Please wait for the green 'Synced' dot before editing."); return false; }
+      return true;
+    }
+    function commit() { renderUI(); window.saveState(); }
+
     window.adjustCounter = function(sIdx, aIdx, delta) {
+      if (!guard()) return;
       const act = appData.sections[sIdx].activities[aIdx];
-      let newCount = (act.checkedCount || 0) + delta;
-      if (newCount < 0) newCount = 0;
-      if (newCount > act.totalStudents) newCount = act.totalStudents;
-      act.checkedCount = newCount;
-      renderUI();
-      window.saveState();
+      let n = (act.checkedCount || 0) + delta;
+      act.checkedCount = Math.max(0, Math.min(n, act.totalStudents));
+      commit();
     };
 
     window.addActivity = function(sIdx) {
+      if (!guard()) return;
       const title = prompt("Enter Activity/Paper Name (e.g., Quiz 1, Long Test):");
       if (!title) return;
       const total = prompt("Enter total number of students/papers:", "30");
       if (!total || isNaN(total)) return;
-
-      if (!appData.sections[sIdx].activities) appData.sections[sIdx].activities = [];
-      appData.sections[sIdx].activities.push({
-        id: Date.now().toString(),
-        title: title,
-        checkedCount: 0,
-        totalStudents: parseInt(total)
-      });
-      renderUI();
-      window.saveState();
+      appData.sections[sIdx].activities.push({ id: Date.now().toString(), title, checkedCount: 0, totalStudents: parseInt(total) });
+      commit();
     };
 
     window.deleteActivity = function(sIdx, aIdx) {
+      if (!guard()) return;
+      if (!confirm(`Delete "${appData.sections[sIdx].activities[aIdx].title}"?`)) return;
       appData.sections[sIdx].activities.splice(aIdx, 1);
-      renderUI();
-      window.saveState();
+      commit();
     };
 
     window.addGeneralTask = function(sIdx) {
+      if (!guard()) return;
       const text = prompt("Enter general task / deliverable:");
       if (!text) return;
-      if (!appData.sections[sIdx].generalTasks) appData.sections[sIdx].generalTasks = [];
       appData.sections[sIdx].generalTasks.push({ id: Date.now().toString(), text, done: false });
-      renderUI();
-      window.saveState();
+      commit();
     };
 
     window.toggleGeneralTask = function(sIdx, tIdx) {
-      appData.sections[sIdx].generalTasks[tIdx].done = !appData.sections[sIdx].generalTasks[tIdx].done;
-      renderUI();
-      window.saveState();
+      if (!guard()) return;
+      const t = appData.sections[sIdx].generalTasks[tIdx];
+      t.done = !t.done;
+      commit();
     };
 
     window.deleteGeneralTask = function(sIdx, tIdx) {
+      if (!guard()) return;
       appData.sections[sIdx].generalTasks.splice(tIdx, 1);
-      renderUI();
-      window.saveState();
+      commit();
     };
 
     window.addLink = function(sIdx) {
+      if (!guard()) return;
       const title = prompt("Enter Link Name (e.g. Class Drive, Canvas LMS):");
       if (!title) return;
       const url = prompt("Paste Link URL:");
       if (!url) return;
-      if (!appData.sections[sIdx].links) appData.sections[sIdx].links = [];
       appData.sections[sIdx].links.push({ title, url });
-      renderUI();
-      window.saveState();
+      commit();
     };
 
     window.deleteLink = function(sIdx, lIdx) {
+      if (!guard()) return;
       appData.sections[sIdx].links.splice(lIdx, 1);
-      renderUI();
-      window.saveState();
+      commit();
     };
 
     window.addNewSection = function() {
+      if (!guard()) return;
       const sectionName = prompt("Enter Section Name (e.g. Grade 10 - St. Jude):");
       if (!sectionName) return;
       const subject = prompt("Enter Subject Handled:") || "General";
       const room = prompt("Enter Room Number:") || "Room TBA";
       const schedule = prompt("Enter Schedule Time (e.g., 08:00 AM - 09:30 AM):") || "TBA";
-
-      appData.sections.push({
-        id: Date.now().toString(),
-        sectionName,
-        subject,
-        room,
-        schedule,
-        links: [],
-        activities: [],
-        generalTasks: []
-      });
-      renderUI();
-      window.saveState();
+      appData.sections.push({ id: Date.now().toString(), sectionName, subject, room, schedule, links: [], activities: [], generalTasks: [] });
+      commit();
     };
 
     window.deleteSection = function(sIdx) {
-      if (confirm(`Delete section "${appData.sections[sIdx].sectionName}"?`)) {
+      if (!guard()) return;
+      if (confirm(`Delete section "${appData.sections[sIdx].sectionName}" and everything in it?`)) {
         appData.sections.splice(sIdx, 1);
-        renderUI();
-        window.saveState();
+        commit();
       }
+    };
+
+    // --- Backup tools ---
+    window.exportData = function() {
+      const blob = new Blob([JSON.stringify(appData, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `planner-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+
+    function replaceAll(data, label) {
+      if (!guard()) return;
+      if (!data || !Array.isArray(data.sections)) { alert("That doesn't look like a valid planner backup."); return; }
+      if (!confirm(`Replace ALL current data with ${label} (${data.sections.length} classes)?`)) return;
+      appData = { keiNotes: data.keiNotes || "", sections: data.sections };
+      document.getElementById('kei-notes-textarea').value = appData.keiNotes;
+      commit();
+    }
+
+    window.importData = function(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { replaceAll(JSON.parse(reader.result), "the imported file"); }
+        catch (e) { alert("Could not read that file."); }
+        input.value = "";
+      };
+      reader.readAsText(file);
+    };
+
+    window.restoreLocalBackup = function() {
+      try {
+        const raw = localStorage.getItem(BACKUP_KEY);
+        if (!raw) { alert("No saved copy on this device yet."); return; }
+        const b = JSON.parse(raw);
+        replaceAll(b.data, `this device's copy from ${new Date(b.savedAt).toLocaleString()}`);
+      } catch (e) { alert("Could not read the local copy."); }
     };
   </script>
 </body>
